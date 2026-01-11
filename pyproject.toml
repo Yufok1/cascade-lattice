@@ -1,0 +1,63 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cascade-lattice"
+dynamic = ["version"]
+description = "Universal AI provenance layer — cryptographic receipts for every call, with HOLD inference halt protocol"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Jeff Towers" }
+]
+keywords = [
+    "ai", "ml", "provenance", "observability", "llm", "tracing",
+    "cryptographic", "receipts", "monitoring", "hold-protocol"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: System :: Monitoring",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "pyyaml>=6.0",
+    "requests>=2.28.0",
+]
+
+[project.optional-dependencies]
+torch = ["torch>=1.9.0"]
+web3 = ["web3>=6.0.0"]
+all = [
+    "torch>=1.9.0",
+    "web3>=6.0.0",
+    "anthropic>=0.18.0",
+    "openai>=1.0.0",
+    "litellm>=1.0.0",
+    "huggingface-hub>=0.20.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Yufok1/cascade-lattice"
+Documentation = "https://github.com/Yufok1/cascade-lattice#readme"
+Repository = "https://github.com/Yufok1/cascade-lattice"
+Issues = "https://github.com/Yufok1/cascade-lattice/issues"
+
+[project.scripts]
+cascade = "cascade.cli_main:main"
+
+[tool.hatch.version]
+path = "cascade/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["cascade"]
