@@ -256,3 +256,35 @@ The lattice grows. Discovery is reading the chain.
 ---
 
 *"even still, i grow, and yet, I grow still"*
+
+## Documentation
+
+### Research & Theory
+
+**📄 [Research Paper: Kleene Fixed-Point Framework](docs/RESEARCH_PAPER.md)**  
+Deep dive into the mathematical foundations—how CASCADE-LATTICE maps neural network computations to Kleene fixed points, creating verifiable provenance chains through distributed lattice networks.
+
+**📖 [Accessible Guide: From Theory to Practice](docs/ACCESSIBLE_GUIDE.md)**  
+For everyone from data scientists to curious users—understand how CASCADE works, with examples ranging from medical AI oversight to autonomous drone coordination.
+
+**Key Concepts:**
+- **Kleene Fixed Points**: Neural networks as monotonic functions converging to stable outputs
+- **Provenance Chains**: Cryptographic Merkle trees tracking every layer's computation
+- **HOLD Protocol**: Human-in-the-loop intervention at decision boundaries
+- **Lattice Network**: Distributed fixed-point convergence across AI agents
+
+### Quick Links
+
+- **Theory**: [Research Paper](docs/RESEARCH_PAPER.md) | [Mathematical Proofs](docs/RESEARCH_PAPER.md#appendix-b-mathematical-proofs)
+- **Practice**: [Accessible Guide](docs/ACCESSIBLE_GUIDE.md) | [Real-World Examples](docs/ACCESSIBLE_GUIDE.md#real-world-examples)
+
+---
+
+## References
+
+Built on foundational work in:
+- **Kleene Fixed Points** (Kleene, 1952) — Theoretical basis for provenance convergence
+- **Merkle Trees** (Merkle, 1987) — Cryptographic integrity guarantees
+- **IPFS/IPLD** (Benet, 2014) — Content-addressed distributed storage
+
+See [full bibliography](docs/RESEARCH_PAPER.md#references) in the research paper.
