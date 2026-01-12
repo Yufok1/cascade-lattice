@@ -261,10 +261,10 @@ The lattice grows. Discovery is reading the chain.
 
 ### Research & Theory
 
-**📄 [Research Paper: Kleene Fixed-Point Framework](docs/RESEARCH_PAPER.md)**  
+**📄 [Research Paper: Kleene Fixed-Point Framework](https://github.com/Yufok1/cascade-lattice/blob/main/docs/RESEARCH_PAPER.md)**  
 Deep dive into the mathematical foundations—how CASCADE-LATTICE maps neural network computations to Kleene fixed points, creating verifiable provenance chains through distributed lattice networks.
 
-**📖 [Accessible Guide: From Theory to Practice](docs/ACCESSIBLE_GUIDE.md)**  
+**📖 [Accessible Guide: From Theory to Practice](https://github.com/Yufok1/cascade-lattice/blob/main/docs/ACCESSIBLE_GUIDE.md)**  
 For everyone from data scientists to curious users—understand how CASCADE works, with examples ranging from medical AI oversight to autonomous drone coordination.
 
 **Key Concepts:**
@@ -275,8 +275,8 @@ For everyone from data scientists to curious users—understand how CASCADE work
 
 ### Quick Links
 
-- **Theory**: [Research Paper](docs/RESEARCH_PAPER.md) | [Mathematical Proofs](docs/RESEARCH_PAPER.md#appendix-b-mathematical-proofs)
-- **Practice**: [Accessible Guide](docs/ACCESSIBLE_GUIDE.md) | [Real-World Examples](docs/ACCESSIBLE_GUIDE.md#real-world-examples)
+- **Theory**: [Research Paper](https://github.com/Yufok1/cascade-lattice/blob/main/docs/RESEARCH_PAPER.md) | [Mathematical Proofs](https://github.com/Yufok1/cascade-lattice/blob/main/docs/RESEARCH_PAPER.md#appendix-b-mathematical-proofs)
+- **Practice**: [Accessible Guide](https://github.com/Yufok1/cascade-lattice/blob/main/docs/ACCESSIBLE_GUIDE.md) | [Real-World Examples](https://github.com/Yufok1/cascade-lattice/blob/main/docs/ACCESSIBLE_GUIDE.md#real-world-examples)
 
 ---
 
@@ -287,4 +287,4 @@ Built on foundational work in:
 - **Merkle Trees** (Merkle, 1987) — Cryptographic integrity guarantees
 - **IPFS/IPLD** (Benet, 2014) — Content-addressed distributed storage
 
-See [full bibliography](docs/RESEARCH_PAPER.md#references) in the research paper.
+See [full bibliography](https://github.com/Yufok1/cascade-lattice/blob/main/docs/RESEARCH_PAPER.md#references) in the research paper.
