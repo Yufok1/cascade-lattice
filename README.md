@@ -1,6 +1,6 @@
 # cascade-lattice
 
-**Universal AI provenance + inference intervention. See what AI sees. Choose what AI chooses.**
+**Universal AI provenance + inference intervention + code diagnostics. See what AI sees. Choose what AI chooses. Find bugs before they find you.**
 
 [![PyPI](https://img.shields.io/pypi/v/cascade-lattice.svg)](https://pypi.org/project/cascade-lattice/)
 [![Python](https://img.shields.io/pypi/pyversions/cascade-lattice.svg)](https://pypi.org/project/cascade-lattice/)
@@ -64,6 +64,45 @@ resolution = hold.yield_point(
 # AI pauses. You see the decision matrix.
 # Accept or override. Then it continues.
 action = resolution.action
+```
+
+### 3. DIAGNOSE - Find bugs before they find you
+
+```python
+from cascade.diagnostics import diagnose, BugDetector
+
+# Quick one-liner analysis
+report = diagnose("path/to/your/code.py")
+print(report)  # Markdown-formatted bug report
+
+# Deep scan a whole project
+detector = BugDetector()
+issues = detector.scan_directory("./my_project")
+
+for issue in issues:
+    print(f"[{issue.severity}] {issue.file}:{issue.line}")
+    print(f"  {issue.message}")
+    print(f"  Pattern: {issue.pattern.name}")
+```
+
+**What it catches:**
+- 🔴 **Critical**: Division by zero, null pointer access, infinite loops
+- 🟠 **High**: Bare except clauses, resource leaks, race conditions
+- 🟡 **Medium**: Unused variables, dead code, type mismatches
+- 🔵 **Low**: Style issues, naming conventions, complexity warnings
+
+**Runtime tracing:**
+```python
+from cascade.diagnostics import CodeTracer
+
+tracer = CodeTracer()
+
+@tracer.trace
+def my_function(x):
+    return x / (x - 1)  # Potential div by zero when x=1
+
+# After execution, trace root causes
+tracer.find_root_causes("error_event_id")
 ```
 
 ---

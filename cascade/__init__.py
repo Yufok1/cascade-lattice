@@ -34,7 +34,7 @@ Quick Start:
     >>> monitor.trace_forwards("learning_rate_spike")
 """
 
-__version__ = "0.5.8"
+__version__ = "0.6.0"
 __author__ = "Cascade Team"
 __license__ = "MIT"
 
@@ -242,6 +242,9 @@ from cascade.hold import (
     ArcadeFeedback,
 )
 
+# DIAGNOSTICS - Code Bug Exposure System
+from cascade import diagnostics
+
 
 __all__ = [
     # SDK - Primary Interface
@@ -286,5 +289,7 @@ __all__ = [
     "HoldSession",
     "ArcadeFeedback",
     "hold_module",
+    # Diagnostics - Code Bug Exposure
+    "diagnostics",
     "__version__",
 ]

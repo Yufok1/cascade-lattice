@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "cascade-lattice"
 dynamic = ["version"]
-description = "Universal AI provenance layer — cryptographic receipts for every call, with HOLD inference halt protocol"
+description = "Universal AI provenance layer — cryptographic receipts for every call, HOLD inference halt protocol, and code diagnostics"
 readme = "README.md"
 license = "MIT"
 authors = [
@@ -13,7 +13,8 @@ authors = [
 ]
 keywords = [
     "ai", "ml", "provenance", "observability", "llm", "tracing",
-    "cryptographic", "receipts", "monitoring", "hold-protocol"
+    "cryptographic", "receipts", "monitoring", "hold-protocol",
+    "diagnostics", "debugging", "bug-detection", "static-analysis"
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
