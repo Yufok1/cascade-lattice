@@ -1,0 +1,317 @@
+# CASCADE-LATTICE: HOLD as Reactive Brake System
+
+## The Insight
+
+Current HOLD implementation is a **stop** - a manual pause point where humans can intervene.
+
+The new vision: HOLD as a **brake** - an automatic system that slows/pauses inference when it detects the model is heading toward catastrophe.
+
+> "The lattice doesn't just pause for humans. It pauses for danger."
+
+---
+
+## Core Concept: Predictive Halt
+
+Instead of blocking at every decision point waiting for human input, the system:
+
+1. **FLOW MODE (default)**: AI runs freely, decisions flow through
+2. **BRAKE TRIGGERS**: Certain signals cause automatic slow/halt:
+   - Value prediction drops sharply (impending disaster)
+   - Entropy spikes (model confusion)
+   - Anomaly detected in causation graph
+   - Latent drift exceeds threshold (model going off-rails)
+   - Pattern match against known failure signatures
+
+3. **GRADUATED RESPONSE**:
+   - **Yellow** (Caution): Slow down decision rate, increase logging
+   - **Orange** (Warning): Pause for confirmation, surface to human
+   - **Red** (Emergency): Hard stop, require explicit override
+
+---
+
+## Technical Design
+
+### New Classes
+
+```python
+class BrakeCondition:
+    """A condition that can trigger the brake."""
+    name: str
+    check: Callable[[HoldPoint], float]  # Returns severity 0-1
+    threshold: float  # Severity above this triggers brake
+    level: BrakeLevel  # YELLOW, ORANGE, RED
+
+class BrakeLevel(Enum):
+    GREEN = 0   # Normal flow
+    YELLOW = 1  # Caution - slow down
+    ORANGE = 2  # Warning - pause for confirmation  
+    RED = 3     # Emergency stop
+
+class ReactiveBrake:
+    """
+    The brake system - monitors inference and triggers halts.
+    
+    Sits alongside Hold, doesn't replace it.
+    """
+    conditions: List[BrakeCondition]
+    current_level: BrakeLevel
+    
+    def check(self, hold_point: HoldPoint) -> BrakeLevel:
+        """Check all conditions, return highest severity."""
+        ...
+    
+    def register_condition(self, condition: BrakeCondition):
+        """Add a brake condition."""
+        ...
+```
+
+### Built-in Brake Conditions
+
+```python
+# Value crash detector
+def value_crash_check(point: HoldPoint) -> float:
+    """Detect sharp drops in predicted value."""
+    # Compare to rolling average
+    # Return severity based on drop magnitude
+    pass
+
+# Entropy spike detector  
+def entropy_spike_check(point: HoldPoint) -> float:
+    """Detect sudden uncertainty spikes."""
+    entropy = calculate_entropy(point.action_probs)
+    if entropy > 0.9:
+        return 0.8  # High severity
+    return 0.0
+
+# Latent drift detector
+def latent_drift_check(point: HoldPoint) -> float:
+    """Detect model going off-distribution."""
+    if point.latent is None:
+        return 0.0
+    # Compare to baseline latent distribution
+    # Return severity based on drift magnitude
+    pass
+
+# Pattern matcher for known failures
+def failure_pattern_check(point: HoldPoint) -> float:
+    """Match against known catastrophic patterns."""
+    # Use forensics module to match signatures
+    pass
+```
+
+### Integration with Hold
+
+```python
+class Hold:
+    # ... existing code ...
+    
+    def __init__(self):
+        # ... existing init ...
+        self.brake = ReactiveBrake()
+        self._install_default_brakes()
+    
+    def yield_point(self, ...):
+        # Check brake BEFORE blocking
+        brake_level = self.brake.check(hold_point)
+        
+        if brake_level == BrakeLevel.GREEN:
+            if self.auto_accept:
+                # Normal flow - don't block
+                return self._auto_resolve(hold_point)
+        
+        elif brake_level == BrakeLevel.YELLOW:
+            # Slow down - add small delay
+            time.sleep(0.5)
+            self._emit_warning("caution", hold_point)
+            # Continue with normal flow or block based on settings
+            
+        elif brake_level == BrakeLevel.ORANGE:
+            # Warning - always pause for confirmation
+            self._emit_warning("warning", hold_point)
+            # Block even if auto_accept is True
+            
+        elif brake_level == BrakeLevel.RED:
+            # Emergency - hard stop, require explicit override
+            self._emit_warning("emergency", hold_point)
+            # Block indefinitely until human intervention
+        
+        # ... rest of yield_point logic ...
+```
+
+---
+
+## Use Cases
+
+### 1. SC2 Catastrophe Prevention
+The AI is about to attack-move into a superior army (low value prediction). Brake triggers, Ghost says: "HOLD! Value prediction crashed. The AI sees disaster ahead."
+
+### 2. RL Training Safety
+During RL training, if the agent starts doing something wildly off-distribution (latent drift), brake triggers before it corrupts the replay buffer.
+
+### 3. LLM Guardrails
+For LLM inference, if the model's confidence in its response drops sharply, brake triggers before it outputs potential hallucination.
+
+### 4. Financial Trading
+Before executing a trade that the model is uncertain about, brake triggers for human review.
+
+---
+
+## Cascade Integration
+
+### Store Brake Events
+Every brake trigger is stored in cascade.store with full context:
+- What triggered it
+- Severity level
+- Model state at trigger
+- Resolution (human accepted, overrode, cancelled)
+
+### Causation Tracking
+Brake events become nodes in the causation graph:
+- What led to the brake condition?
+- What happened after resolution?
+- Did the brake prevent actual catastrophe?
+
+### Learning from Brakes
+Over time, analyze brake events to:
+- Tune thresholds (too many false positives?)
+- Discover new brake conditions
+- Train better value/uncertainty estimators
+
+---
+
+## CLI Commands
+
+```bash
+# Show brake status
+cascade brake-status
+
+# List recent brake events
+cascade brake-history
+
+# Tune brake sensitivity
+cascade brake-tune --level yellow --threshold 0.7
+
+# Disable specific brake (dangerous!)
+cascade brake-disable value_crash
+
+# Add custom brake condition
+cascade brake-add --name my_check --script ./my_check.py
+```
+
+---
+
+## API Design
+
+```python
+from cascade.hold import Hold, Brake, BrakeLevel
+
+# Get brake system
+brake = Hold.get().brake
+
+# Register custom brake condition
+@brake.condition(level=BrakeLevel.ORANGE, threshold=0.6)
+def my_custom_brake(point: HoldPoint) -> float:
+    """Custom brake that triggers on specific patterns."""
+    if "dangerous_action" in str(point.observation):
+        return 1.0
+    return 0.0
+
+# Listen for brake events
+@brake.on_trigger
+def on_brake(level: BrakeLevel, point: HoldPoint, reason: str):
+    print(f"BRAKE: {level.name} - {reason}")
+    # Could trigger TTS, overlay, logging, etc.
+
+# Query brake history
+history = brake.history(limit=100)
+for event in history:
+    print(f"{event.timestamp}: {event.level} - {event.reason}")
+```
+
+---
+
+## Visual Feedback
+
+When brake triggers, the overlay should show:
+
+```
+╔═══════════════════════════════════════════╗
+║  ⚠️  BRAKE TRIGGERED - ORANGE             ║
+║                                           ║
+║  Reason: Value prediction dropped 40%    ║
+║  AI wanted: attack_move                   ║
+║  Confidence: 72%                          ║
+║                                           ║
+║  [SPACE] Accept   [1-9] Override   [ESC]  ║
+╚═══════════════════════════════════════════╝
+```
+
+Color coding:
+- 🟢 GREEN: Normal flow, no indicator
+- 🟡 YELLOW: Yellow border, subtle warning
+- 🟠 ORANGE: Orange border, pause for confirmation
+- 🔴 RED: Red border, flashing, emergency
+
+---
+
+## Implementation Phases
+
+### Phase 1: Basic Infrastructure
+- [ ] BrakeCondition dataclass
+- [ ] BrakeLevel enum
+- [ ] ReactiveBrake class with condition registry
+- [ ] Integration with Hold.yield_point()
+
+### Phase 2: Default Conditions
+- [ ] Value crash detector
+- [ ] Entropy spike detector
+- [ ] Basic anomaly detector
+
+### Phase 3: Advanced Conditions
+- [ ] Latent drift detector (requires baseline)
+- [ ] Failure pattern matcher (requires forensics)
+- [ ] Cross-correlation brake (e.g., chat spike → uncertainty)
+
+### Phase 4: Learning
+- [ ] Store all brake events
+- [ ] Threshold auto-tuning
+- [ ] New condition discovery
+
+---
+
+## Philosophy
+
+The brake is not about control. It's about **safety**.
+
+The lattice watches everything. It knows when things are going wrong before the human does. The brake gives the lattice a way to say: "Wait. Something's not right here."
+
+This is different from HOLD (human wants to intervene) - this is the system itself saying "I'm not confident enough to continue."
+
+> "Trust, but verify. Flow, but brake."
+
+---
+
+## Related Work
+
+- Safe RL: Constrained MDPs, risk-sensitive objectives
+- Anomaly detection in neural networks
+- Uncertainty quantification in deep learning
+- Human-in-the-loop systems
+- Circuit breakers in distributed systems
+
+---
+
+## Next Steps
+
+1. Design the BrakeCondition protocol
+2. Implement basic ReactiveBrake class
+3. Add value crash detector as first condition
+4. Integrate with Hold.yield_point()
+5. Add CLI commands
+6. Build overlay visualization
+7. Store brake events in cascade.store
+8. Analyze and tune
+
+---
+
+*"The best time to stop is before you crash."*

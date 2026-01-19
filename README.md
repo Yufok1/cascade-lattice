@@ -10,6 +10,14 @@
 pip install cascade-lattice
 ```
 
+**Import with either style:**
+```python
+import cascade                # Preferred
+import cascade_lattice        # Also works (alias)
+from cascade import Hold      # Works
+from cascade_lattice import Hold  # Also works
+```
+
 ---
 
 ## 🎮 Interactive Demo

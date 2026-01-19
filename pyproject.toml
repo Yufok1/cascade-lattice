@@ -92,4 +92,4 @@ cascade = "cascade.cli_main:main"
 path = "cascade/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["cascade"]
+packages = ["cascade", "cascade_lattice"]
