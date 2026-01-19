@@ -8,7 +8,11 @@ The actual implementation lives in the `cascade` package.
 Both import styles work:
     >>> import cascade
     >>> import cascade_lattice  # Same thing!
+    >>> from cascade_lattice.core.provenance import ProvenanceChain  # Works!
 """
+
+import sys
+import importlib
 
 # Re-export everything from cascade
 from cascade import *
@@ -30,7 +34,6 @@ from cascade import (
     Hold,
     HoldPoint,
     HoldState,
-    HoldSession,
     HoldResolution,
     HoldAwareMixin,
     CausationHold,
@@ -76,3 +79,20 @@ from cascade import forensics
 from cascade import observation
 from cascade import identity
 from cascade import sdk
+
+
+def __getattr__(name):
+    """
+    Lazy import handler - redirects cascade_lattice.X to cascade.X
+    
+    This allows `from cascade_lattice.core.provenance import ProvenanceChain`
+    to work by dynamically importing from cascade.
+    """
+    try:
+        # Try to import from cascade
+        cascade_module = importlib.import_module(f"cascade.{name}")
+        # Cache it in sys.modules so future imports are fast
+        sys.modules[f"cascade_lattice.{name}"] = cascade_module
+        return cascade_module
+    except ImportError:
+        raise AttributeError(f"module 'cascade_lattice' has no attribute '{name}'")
