@@ -38,6 +38,50 @@ Every action is merkle-chained. Every decision has provenance. This is the futur
 
 ---
 
+## 🌐 TUI Explorer
+
+**Navigate the entire cascade-lattice ecosystem** in a beautiful terminal interface:
+
+```bash
+pip install cascade-lattice[tui]
+cascade-tui
+```
+
+```
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  📍 🌐 cascade_lattice → 🧠 core → 📊 provenance                             │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                        │                              │                      │
+│  🗂️ MODULES            │  📖 DOCUMENTATION            │  🔗 CONNECTIONS      │
+│                        │                              │                      │
+│  🌐 cascade_lattice    │  # 📊 Provenance             │  ⬆️ 🧠 core          │
+│   ├─ 🧠 core           │                              │  ⬇️ 📡 Monitor       │
+│   │  ├─ 📊 provenance  │  **What is this?**           │  📥 🌅 genesis       │
+│   │  ├─ 📈 graph       │  The cryptographic backbone  │  📤 💾 store         │
+│   │  ├─ 🔌 adapter     │  that makes everything       │                      │
+│   │  └─ 📡 event       │  tamper-proof.               │  📦 EXPORTS          │
+│   ├─ ⏸️ hold           │                              │                      │
+│   ├─ 💾 store          │  Like a notary stamp on      │  ● ProvenanceChain   │
+│   ├─ 🌅 genesis        │  every AI decision...        │  ● ProvenanceRecord  │
+│   └─ 🎨 viz            │                              │  ○ hash_tensor()     │
+│                        │  [Toggle: 📚 Dummies Mode]   │  ○ compute_merkle()  │
+│                        │                              │                      │
+├──────────────────────────────────────────────────────────────────────────────┤
+│  [E] Explorer  [S] Stats  [D] Demo  [T] Toggle Mode  [H] Home  [Q] Quit      │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Features:**
+- 🗂️ **Module Tree** — Click to drill into any module
+- 🔗 **Connections Panel** — Navigate via relationships (parent, children, imports, used-by)
+- 📖 **Dual Explanations** — Toggle between "For Dummies" 📚 and "Scientist Mode" 🧪
+- 📊 **Live Stats** — See your 82,000+ observations, genesis root, top models
+- 🎮 **Interactive Demos** — Run HOLD, Observe, Genesis, Provenance demos live
+
+**Creative Navigation:** Take different routes through the module graph. Discover connections. Learn at your own pace.
+
+---
+
 ## Two Superpowers
 
 ### 1. OBSERVE - Cryptographic receipts for every AI call
