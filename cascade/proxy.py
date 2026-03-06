@@ -22,6 +22,7 @@ import asyncio
 import hashlib
 import json
 import os
+import threading
 import time
 import uuid
 from datetime import datetime, timezone
@@ -70,6 +71,14 @@ class CascadeProxy:
         self.sdk = CascadeSDK()
         self.sdk.init(emit_async=True, verbose=verbose)
         self.session: Optional[ClientSession] = None
+        self.runner = None
+        self.site = None
+        self._loop: Optional[asyncio.AbstractEventLoop] = None
+        self._thread: Optional[threading.Thread] = None
+        self._stop_event: Optional[asyncio.Event] = None
+        self._ready_event = threading.Event()
+        self._start_error: Optional[str] = None
+        self._running = False
         
         # Stats
         self.stats = {
@@ -79,13 +88,13 @@ class CascadeProxy:
             "start_time": None,
         }
     
-    async def start(self):
-        """Start the proxy server."""
+    async def _serve(self):
+        """Async proxy server lifecycle."""
         if not AIOHTTP_AVAILABLE:
-            print("ERROR: aiohttp required for proxy mode")
-            print("Install with: pip install aiohttp")
-            return
-        
+            raise RuntimeError("aiohttp required for proxy mode. Install with: pip install aiohttp")
+
+        self._loop = asyncio.get_running_loop()
+        self._stop_event = asyncio.Event()
         self.session = ClientSession()
         self.stats["start_time"] = time.time()
         
@@ -94,12 +103,13 @@ class CascadeProxy:
         # Route all requests
         app.router.add_route("*", "/{path:.*}", self.handle_request)
         
-        runner = web.AppRunner(app)
-        await runner.setup()
+        self.runner = web.AppRunner(app)
+        await self.runner.setup()
         
-        site = web.TCPSite(runner, self.host, self.port)
+        self.site = web.TCPSite(self.runner, self.host, self.port)
         
-        print(f"""
+        if self.verbose:
+            print(f"""
 ╔══════════════════════════════════════════════════════════════╗
 ║  CASCADE PROXY - Protocol-Level AI Observation               ║
 ╠══════════════════════════════════════════════════════════════╣
@@ -114,11 +124,107 @@ class CascadeProxy:
 ╚══════════════════════════════════════════════════════════════╝
 """)
         
-        await site.start()
+        await self.site.start()
+        if self.port == 0:
+            sockets = getattr(getattr(self.site, "_server", None), "sockets", None) or []
+            if sockets:
+                try:
+                    self.port = sockets[0].getsockname()[1]
+                except Exception:
+                    pass
+        self._running = True
+        self._ready_event.set()
         
-        # Keep running
-        while True:
-            await asyncio.sleep(3600)
+        # Keep running until stop() signals the event.
+        await self._stop_event.wait()
+        await self.shutdown()
+
+    async def start_async(self):
+        """Start the proxy in the current event loop and block until stopped."""
+        try:
+            await self._serve()
+        finally:
+            self._running = False
+
+    def _thread_main(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        self._loop = loop
+        try:
+            loop.run_until_complete(self._serve())
+        except Exception as exc:
+            self._start_error = str(exc)
+            self._ready_event.set()
+            if self.verbose:
+                print(f"[CASCADE PROXY] Startup failed: {exc}")
+            if self.session or self.runner:
+                try:
+                    loop.run_until_complete(self.shutdown())
+                except Exception:
+                    pass
+        finally:
+            self._running = False
+            pending = [t for t in asyncio.all_tasks(loop) if not t.done()]
+            for task in pending:
+                task.cancel()
+            if pending:
+                try:
+                    loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+                except Exception:
+                    pass
+            loop.close()
+            self._loop = None
+
+    def start(self, block: bool = False, timeout: float = 5.0):
+        """Start the proxy.
+
+        By default the proxy runs in a background thread so synchronous runtimes
+        can start/stop it cleanly. Set block=True for CLI usage.
+        """
+        if self._running:
+            return self.status()
+        if not AIOHTTP_AVAILABLE:
+            raise RuntimeError("aiohttp required for proxy mode. Install with: pip install aiohttp")
+
+        self._ready_event.clear()
+        self._start_error = None
+
+        if block:
+            asyncio.run(self.start_async())
+            return self.status()
+
+        self._thread = threading.Thread(target=self._thread_main, daemon=True)
+        self._thread.start()
+        self._ready_event.wait(timeout=max(float(timeout or 0), 0.1))
+        if self._start_error:
+            raise RuntimeError(self._start_error)
+        return self.status()
+
+    def stop(self, timeout: float = 5.0):
+        """Stop the proxy and wait briefly for cleanup."""
+        if not self._running:
+            return self.status()
+        loop = self._loop
+        stop_event = self._stop_event
+        if loop and stop_event:
+            loop.call_soon_threadsafe(stop_event.set)
+        if self._thread and self._thread.is_alive() and self._thread is not threading.current_thread():
+            self._thread.join(timeout=max(float(timeout or 0), 0.1))
+        return self.status()
+
+    def status(self) -> Dict[str, Any]:
+        """Return proxy lifecycle state."""
+        runtime = time.time() - self.stats["start_time"] if self.stats["start_time"] else 0.0
+        return {
+            "running": bool(self._running),
+            "host": self.host,
+            "port": self.port,
+            "requests": self.stats["requests"],
+            "receipts_emitted": self.stats["receipts_emitted"],
+            "bytes_proxied": self.stats["bytes_proxied"],
+            "runtime_seconds": round(runtime, 3),
+            "start_error": self._start_error,
+        }
     
     async def handle_request(self, request: web.Request) -> web.Response:
         """Handle incoming request, proxy to real API, emit receipt."""
@@ -330,11 +436,20 @@ class CascadeProxy:
         """Shutdown proxy."""
         if self.session:
             await self.session.close()
+            self.session = None
+        if self.runner:
+            await self.runner.cleanup()
+            self.runner = None
+            self.site = None
         self.sdk.shutdown()
+        self._running = False
+        if self._stop_event and not self._stop_event.is_set():
+            self._stop_event.set()
         
         # Print stats
         runtime = time.time() - self.stats["start_time"] if self.stats["start_time"] else 0
-        print(f"""
+        if self.verbose:
+            print(f"""
 ╔══════════════════════════════════════════════════════════════╗
 ║  CASCADE PROXY - Shutdown                                    ║
 ╠══════════════════════════════════════════════════════════════╣
@@ -351,10 +466,10 @@ def run_proxy(host: str = "0.0.0.0", port: int = 7777, verbose: bool = True):
     proxy = CascadeProxy(host=host, port=port, verbose=verbose)
     
     try:
-        asyncio.run(proxy.start())
+        proxy.start(block=True)
     except KeyboardInterrupt:
         print("\nShutting down...")
-        asyncio.run(proxy.shutdown())
+        proxy.stop()
 
 
 # =============================================================================

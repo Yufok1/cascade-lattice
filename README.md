@@ -186,6 +186,22 @@ print(report.ghost_log.to_narrative())
 - `anomaly` - inspect single-event or tiny structured debug payloads
 - `auto` - choose anomaly mode for structured failure bursts and small debug payloads, dataset mode otherwise
 
+### 5. PROXY - Start/stop/status for protocol observation
+
+```python
+from cascade.proxy import CascadeProxy
+
+proxy = CascadeProxy(port=7777, verbose=False)
+proxy.start()              # runs in a background thread
+print(proxy.status())      # lifecycle + traffic counters
+proxy.stop()
+```
+
+**CLI:**
+```bash
+python -m cascade.proxy --port 7777
+```
+
 ---
 
 ## Quick Start
