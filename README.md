@@ -184,7 +184,7 @@ print(report.ghost_log.to_narrative())
 **Modes:**
 - `dataset` - preserve the original artifact archaeology behavior for multi-row data
 - `anomaly` - inspect single-event or tiny structured debug payloads
-- `auto` - choose anomaly mode for small structured payloads, dataset mode otherwise
+- `auto` - choose anomaly mode for structured failure bursts and small debug payloads, dataset mode otherwise
 
 ---
 

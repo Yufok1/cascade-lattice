@@ -548,7 +548,7 @@ class TextArtifacts(ArtifactDetector):
                 return artifacts
             
             # Truncation
-            trunc = self._detect_truncation(values)
+            trunc = self._detect_truncation(values, column)
             if trunc:
                 artifacts.append(trunc)
             
@@ -572,7 +572,7 @@ class TextArtifacts(ArtifactDetector):
         
         return artifacts
     
-    def _detect_truncation(self, values: List[str]) -> Optional[Artifact]:
+    def _detect_truncation(self, values: List[str], column: str) -> Optional[Artifact]:
         """Detect truncation at specific lengths."""
         lengths = [len(v) for v in values]
         max_len = max(lengths)
@@ -589,7 +589,7 @@ class TextArtifacts(ArtifactDetector):
             if truncated_looking > len(max_values) * 0.5:
                 return Artifact(
                     artifact_type="truncation",
-                    column=str(values[0])[:20] if values else "text",
+                    column=column,
                     evidence=f"{at_max} values ({at_max/len(values)*100:.1f}%) truncated at {max_len} chars",
                     confidence=0.80,
                     inferred_operation=f"FIELD_LENGTH_LIMIT_{max_len}",

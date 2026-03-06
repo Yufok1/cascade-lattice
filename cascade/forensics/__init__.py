@@ -22,7 +22,7 @@ Usage:
 Modes:
     - "dataset": artifact archaeology on multi-row/tabular data
     - "anomaly": structured inspection of small failure/debug payloads
-    - "auto": choose anomaly for tiny structured payloads, dataset otherwise
+    - "auto": choose anomaly for structured failure bursts and tiny debug payloads, dataset otherwise
 """
 
 from cascade.forensics.analyzer import (

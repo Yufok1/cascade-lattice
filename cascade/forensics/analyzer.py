@@ -220,25 +220,33 @@ class DataForensics:
             raise ValueError("mode must be one of: auto, dataset, anomaly")
         if requested != "auto":
             return requested
-        row_count = len(df)
+
+        records = list(df.to_dict(orient="records"))
+        row_count = len(records)
         if row_count <= 1:
             return "anomaly"
-        if row_count <= 3:
-            for record in df.to_dict(orient="records"):
-                if self._record_looks_anomalous(record):
-                    return "anomaly"
+
+        sample = records[: min(row_count, 50)]
+        scores = [self._record_anomaly_score(record) for record in sample]
+        strong_hits = sum(1 for score in scores if score >= 3)
+        very_strong_hits = sum(1 for score in scores if score >= 5)
+        strong_ratio = strong_hits / max(1, len(sample))
+        has_structured = any(self._record_has_structured_payload(record) for record in sample)
+
+        if row_count <= 25:
+            if has_structured and strong_ratio >= 0.4:
+                return "anomaly"
+            if very_strong_hits >= 1 and strong_ratio >= 0.5:
+                return "anomaly"
+        elif row_count <= 100:
+            if has_structured and strong_ratio >= 0.75:
+                return "anomaly"
+
         return "dataset"
 
-    def _record_looks_anomalous(self, record: Dict[str, Any]) -> bool:
-        for key, value in (record or {}).items():
-            key_lower = str(key).lower()
+    def _record_has_structured_payload(self, record: Dict[str, Any]) -> bool:
+        for value in (record or {}).values():
             if isinstance(value, (dict, list)):
-                return True
-            if any(hint in key_lower for hint in (
-                "error", "exception", "trace", "session", "request",
-                "receipt", "status", "retry", "timeout", "route", "tool",
-                "component", "context"
-            )):
                 return True
             if isinstance(value, str):
                 text = value.strip()
@@ -246,10 +254,39 @@ class DataForensics:
                     continue
                 if (text.startswith("{") and text.endswith("}")) or (text.startswith("[") and text.endswith("]")):
                     return True
-                lowered = text.lower()
-                if any(tok in lowered for tok in ("error", "exception", "timeout", "traceback", "failed")):
-                    return True
         return False
+
+    def _record_anomaly_score(self, record: Dict[str, Any]) -> int:
+        score = 0
+        for key, value in (record or {}).items():
+            key_lower = str(key).lower()
+            if isinstance(value, (dict, list)):
+                score += 2
+            if any(hint in key_lower for hint in (
+                "error", "exception", "failure", "traceback", "stack"
+            )):
+                score += 2
+            if any(hint in key_lower for hint in (
+                "trace", "request", "session", "receipt", "status",
+                "retry", "timeout", "route", "tool", "endpoint", "context"
+            )):
+                score += 1
+            if isinstance(value, str):
+                text = value.strip()
+                if not text:
+                    continue
+                if (text.startswith("{") and text.endswith("}")) or (text.startswith("[") and text.endswith("]")):
+                    score += 2
+                lowered = text.lower()
+                if any(tok in lowered for tok in (
+                    "error", "exception", "timeout", "traceback", "failed",
+                    "stack trace", "no prior events to trace"
+                )):
+                    score += 2
+        return score
+
+    def _record_looks_anomalous(self, record: Dict[str, Any]) -> bool:
+        return self._record_anomaly_score(record) >= 3
 
     def _analyze_dataset_frame(self, df, report: ForensicsReport) -> ForensicsReport:
         all_artifacts = []
@@ -471,7 +508,6 @@ class DataForensics:
             sig = (
                 artifact.artifact_type,
                 artifact.column,
-                artifact.evidence,
                 artifact.inferred_operation,
             )
             if sig in seen:
