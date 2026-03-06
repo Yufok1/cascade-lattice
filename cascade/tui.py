@@ -1008,8 +1008,8 @@ Data archaeology and tech stack fingerprinting.
 
 ```python
 class DataForensics:
-    def analyze(self, data: Any) -> ForensicsReport: ...
-    def analyze_file(self, path: Path) -> ForensicsReport: ...
+    def analyze(self, data: Any, mode: str = "auto") -> ForensicsReport: ...
+    def analyze_file(self, path: Path, mode: str = "auto") -> ForensicsReport: ...
 
 class TechFingerprinter:
     PATTERNS: Dict[str, str]  # tech_name → regex
@@ -1038,6 +1038,11 @@ class ForensicsReport:
     artifacts: Dict[str, Any]
     inferred_operations: List[InferredOperation]
     ghost_logs: List[GhostLog]  # Traces of deleted data
+
+Modes:
+- "dataset" = archaeology on patterned datasets
+- "anomaly" = structured single-event / small-sample debug forensics
+- "auto" = choose based on input shape
 ```
         """,
         exports=["DataForensics", "TechFingerprinter", "ArtifactDetector",

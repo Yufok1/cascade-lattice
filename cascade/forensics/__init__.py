@@ -13,11 +13,16 @@ Usage:
     from cascade.forensics import DataForensics
     
     forensics = DataForensics()
-    report = forensics.analyze(dataframe)
+    report = forensics.analyze(dataframe, mode="auto")
     
     print(report.ghost_log)      # Inferred operations
-    print(report.skeleton)       # System architecture
+    print(report.likely_stack)   # System architecture
     print(report.fingerprints)   # Technology hints
+
+Modes:
+    - "dataset": artifact archaeology on multi-row/tabular data
+    - "anomaly": structured inspection of small failure/debug payloads
+    - "auto": choose anomaly for tiny structured payloads, dataset otherwise
 """
 
 from cascade.forensics.analyzer import (

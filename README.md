@@ -157,6 +157,35 @@ def my_function(x):
 tracer.find_root_causes("error_event_id")
 ```
 
+### 4. FORENSICS - Read the shape of failure payloads
+
+```python
+import pandas as pd
+from cascade.forensics import DataForensics
+
+payload = {
+    "component": "debug_runtime",
+    "tool": "forensics_analyze",
+    "status": 404,
+    "trace_id": "trace-123",
+    "retry_count": 2,
+    "timestamp": "2026-03-06T03:40:15Z",
+    "context": {"route": "caller", "source": "agent-inner"},
+    "error": "HTTP Error 404: Not Found",
+}
+
+forensics = DataForensics()
+report = forensics.analyze(pd.DataFrame([payload]), mode="auto")
+
+print(report.summary())
+print(report.ghost_log.to_narrative())
+```
+
+**Modes:**
+- `dataset` - preserve the original artifact archaeology behavior for multi-row data
+- `anomaly` - inspect single-event or tiny structured debug payloads
+- `auto` - choose anomaly mode for small structured payloads, dataset mode otherwise
+
 ---
 
 ## Quick Start

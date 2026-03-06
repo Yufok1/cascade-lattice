@@ -145,6 +145,47 @@ class TechFingerprinter:
             "category": "architecture",
             "weight": 0.85,
         },
+        # Small-sample anomaly forensics
+        "COMPONENT_ATTRIBUTION": {
+            "technology": "Component-Scoped Failure Telemetry",
+            "category": "architecture",
+            "weight": 0.82,
+        },
+        "OBSERVABILITY_ROUTE": {
+            "technology": "Routed Observability Surface",
+            "category": "tool",
+            "weight": 0.84,
+        },
+        "TRACE_CORRELATION": {
+            "technology": "Trace-Correlated Debug Pipeline",
+            "category": "architecture",
+            "weight": 0.9,
+        },
+        "TEMPORAL_EVIDENCE": {
+            "technology": "Temporal Telemetry Capture",
+            "category": "infrastructure",
+            "weight": 0.76,
+        },
+        "RETRY_DIAGNOSTIC": {
+            "technology": "Retry-Aware Remote Client",
+            "category": "infrastructure",
+            "weight": 0.8,
+        },
+        "TRANSPORT_FAILURE_STATUS": {
+            "technology": "Transport Failure Surface",
+            "category": "bug",
+            "weight": 0.83,
+        },
+        "DEBUG_ERROR_SIGNAL": {
+            "technology": "Structured Error Reporting",
+            "category": "bug",
+            "weight": 0.88,
+        },
+        "NESTED_FAILURE_CONTEXT": {
+            "technology": "Nested Failure Context Preservation",
+            "category": "processing",
+            "weight": 0.74,
+        },
     }
     
     # Compound patterns - combinations that strengthen identification
@@ -168,6 +209,18 @@ class TechFingerprinter:
         {
             "requires": ["UUID_GENERATION_V1", "BATCH_BURST_PROCESSING"],
             "suggests": Fingerprint("Distributed System (pre-2015 design)", "architecture", 0.75),
+        },
+        {
+            "requires": ["TRACE_CORRELATION", "OBSERVABILITY_ROUTE"],
+            "suggests": Fingerprint("Instrumented Debug Pipeline", "architecture", 0.92),
+        },
+        {
+            "requires": ["DEBUG_ERROR_SIGNAL", "NESTED_FAILURE_CONTEXT"],
+            "suggests": Fingerprint("Structured Failure Reporting", "architecture", 0.9),
+        },
+        {
+            "requires": ["TRANSPORT_FAILURE_STATUS", "RETRY_DIAGNOSTIC"],
+            "suggests": Fingerprint("Resilient Remote Client", "infrastructure", 0.86),
         },
     ]
     
