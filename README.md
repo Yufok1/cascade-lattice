@@ -4,7 +4,8 @@
 
 [![PyPI](https://img.shields.io/pypi/v/cascade-lattice.svg)](https://pypi.org/project/cascade-lattice/)
 [![Python](https://img.shields.io/pypi/pyversions/cascade-lattice.svg)](https://pypi.org/project/cascade-lattice/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/Yufok1/cascade-lattice/blob/main/LICENSE)
+[![Security](https://img.shields.io/badge/security-policy-blue.svg)](https://github.com/Yufok1/cascade-lattice/blob/main/SECURITY.md)
 
 ```
 pip install cascade-lattice
@@ -17,6 +18,24 @@ import cascade_lattice        # Also works (alias)
 from cascade import Hold      # Works
 from cascade_lattice import Hold  # Also works
 ```
+
+## Security & Release Integrity
+
+`cascade-lattice` is a primitive dependency for Champion Council tool surfaces:
+observation, advanced control, safety, HOLD protocol, diagnostics,
+status/introspection, visualization, and snapshots. Patch releases preserve the
+`cascade` and `cascade_lattice` import surface.
+
+Release hardening targets:
+
+- PyPI Trusted Publishing through GitHub OIDC
+- least-privilege GitHub Actions permissions
+- no long-lived PyPI token in the normal publish workflow
+- `compileall`, tests, wheel/source builds, and `twine check` before publish
+- PyPI-safe documentation links for security, changelog, and release hardening
+
+Security policy: [SECURITY.md](https://github.com/Yufok1/cascade-lattice/blob/main/SECURITY.md)  
+Release checklist: [docs/RELEASE_HARDENING.md](https://github.com/Yufok1/cascade-lattice/blob/main/docs/RELEASE_HARDENING.md)
 
 ---
 
@@ -387,6 +406,9 @@ The lattice grows. Discovery is reading the chain.
 ## Links
 
 - [PyPI](https://pypi.org/project/cascade-lattice/)
+- [Security Policy](https://github.com/Yufok1/cascade-lattice/blob/main/SECURITY.md)
+- [Changelog](https://github.com/Yufok1/cascade-lattice/blob/main/CHANGELOG.md)
+- [Release Hardening](https://github.com/Yufok1/cascade-lattice/blob/main/docs/RELEASE_HARDENING.md)
 - [Issues](https://github.com/Yufok1/cascade-lattice/issues)
 
 ---
@@ -413,6 +435,7 @@ For everyone from data scientists to curious users—understand how CASCADE work
 
 - **Theory**: [Research Paper](https://github.com/Yufok1/cascade-lattice/blob/main/docs/RESEARCH_PAPER.md) | [Mathematical Proofs](https://github.com/Yufok1/cascade-lattice/blob/main/docs/RESEARCH_PAPER.md#appendix-b-mathematical-proofs)
 - **Practice**: [Accessible Guide](https://github.com/Yufok1/cascade-lattice/blob/main/docs/ACCESSIBLE_GUIDE.md) | [Real-World Examples](https://github.com/Yufok1/cascade-lattice/blob/main/docs/ACCESSIBLE_GUIDE.md#real-world-examples)
+- **Release**: [Security Policy](https://github.com/Yufok1/cascade-lattice/blob/main/SECURITY.md) | [Release Hardening](https://github.com/Yufok1/cascade-lattice/blob/main/docs/RELEASE_HARDENING.md) | [Changelog](https://github.com/Yufok1/cascade-lattice/blob/main/CHANGELOG.md)
 
 ---
 

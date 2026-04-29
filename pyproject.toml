@@ -8,6 +8,7 @@ dynamic = ["version"]
 description = "Universal AI provenance layer — cryptographic receipts for every call, HOLD inference halt protocol, and code diagnostics"
 readme = "README.md"
 license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     { name = "Jeff Towers" }
 ]
@@ -22,7 +23,6 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -75,9 +75,12 @@ all = [
     "textual>=0.40.0",
 ]
 dev = [
+    "build>=1.2",
     "pytest>=7.0",
     "pytest-cov>=4.0",
     "pytest-asyncio>=0.21.0",
+    "twine>=5.0",
+    "pandas>=2.0",
     "black>=23.0",
     "ruff>=0.1.0",
     "mypy>=1.0",
@@ -88,13 +91,38 @@ Homepage = "https://github.com/Yufok1/cascade-lattice"
 Documentation = "https://github.com/Yufok1/cascade-lattice#readme"
 Repository = "https://github.com/Yufok1/cascade-lattice"
 Issues = "https://github.com/Yufok1/cascade-lattice/issues"
+Changelog = "https://github.com/Yufok1/cascade-lattice/blob/main/CHANGELOG.md"
+Security = "https://github.com/Yufok1/cascade-lattice/blob/main/SECURITY.md"
+"Release Hardening" = "https://github.com/Yufok1/cascade-lattice/blob/main/docs/RELEASE_HARDENING.md"
 
 [project.scripts]
 cascade = "cascade.cli_main:main"
 cascade-tui = "cascade.tui:main"
+cascade-demo = "cascade.demo:main"
 
 [tool.hatch.version]
 path = "cascade/__init__.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["cascade", "cascade_lattice"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/cascade",
+    "/cascade_lattice",
+    "/docs",
+    "/tests",
+    "/README.md",
+    "/LICENSE",
+    "/SECURITY.md",
+    "/CHANGELOG.md",
+    "/pyproject.toml",
+]
+exclude = [
+    "/.claude",
+    "/dist",
+    "/build",
+    "/.pytest_cache",
+    "/htmlcov",
+    "*.log",
+]
