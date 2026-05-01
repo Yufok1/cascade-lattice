@@ -232,8 +232,8 @@ import cascade
 cascade.init()
 
 # That's it. Every call is now observed.
-import openai
-# ... use normally, receipts emit automatically
+from openai import OpenAI
+OpenAI().responses.create(model="gpt-5.2", input="Hello")  # Receipt emitted
 ```
 
 ### Manual Observation
@@ -367,6 +367,41 @@ pip install cascade-lattice[openai]
 pip install cascade-lattice[anthropic]
 pip install cascade-lattice[all]
 ```
+
+OpenAI support observes:
+
+- `OpenAI().responses.create(...)`
+- `openai.responses.create(...)`
+- `OpenAI().chat.completions.create(...)`
+- `openai.chat.completions.create(...)`
+- legacy `completions.create(...)`
+
+No OpenAI API key is needed to install or test cascade-lattice. A key is only
+needed when you run live OpenAI API calls yourself.
+
+Responses API example:
+
+```python
+from openai import OpenAI
+import cascade
+
+cascade.init(providers=["openai"], verbose=True)
+
+client = OpenAI()
+response = client.responses.create(
+    model="gpt-5.2",
+    input="Write one sentence about receipt-backed AI provenance.",
+)
+
+print(response.output_text)
+cascade.shutdown()
+```
+
+Cascade records a local receipt around the call, including model id, endpoint,
+input/output text when available, token usage when present, and provider
+context. It does not make API calls by itself.
+
+Maintainer note: I share the belief that joining with AI should move toward human purpose, not away from it. The package says it plainly: "even still, i grow, and yet, I grow still". In cascade-lattice, that belief becomes an architectural requirement: durable provenance, reviewable receipts, and HOLD points keep capability attached to responsibility.
 
 ---
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.4 - 2026-05-01
+
+- Added OpenAI Responses API receipt support to the OpenAI patch surface.
+- Preserved Chat Completions and legacy Completions receipt behavior.
+- Added no-cost OpenAI acclimation docs and fake-client tests with no live API calls.
+- Captured Responses input/output token usage where present.
+- Kept OpenAI API keys optional and required only for user-run live OpenAI calls.
+
 ## 0.8.3 - 2026-04-29
 
 - Hardened the PyPI release workflow around GitHub OIDC Trusted Publishing.
