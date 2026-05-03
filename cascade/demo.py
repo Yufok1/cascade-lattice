@@ -46,10 +46,7 @@ def check_demo_dependencies():
     except ImportError:
         missing.append("stable-baselines3")
     
-    try:
-        import box2d
-    except ImportError:
-        missing.append("box2d-py")
+    # Box2D check removed - let gymnasium handle it
     
     return missing
 
